@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import MainRoute from './routes/MainRoute';
+import MainRoute from './app/routes/MainRoute';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
