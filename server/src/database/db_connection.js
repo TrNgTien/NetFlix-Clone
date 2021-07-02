@@ -1,9 +1,9 @@
 const mysql = require("mysql");
 const dbConfig = {
-  user: "b0920f2865db2e",
+  user: "baff8cfae4361d",
   host: "eu-cdbr-west-01.cleardb.com",
-  password: "2abc0c60",
-  database: "heroku_ad1f4c5078c7bf0",
+  password: "a9f0fef5",
+  database: "heroku_d23ba00c4e094ee",
   // multipleStatements: true
 };
 
