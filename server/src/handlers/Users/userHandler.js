@@ -1,9 +1,26 @@
 const sqlQuery = require("../../database/my_sql_query");
 const dbConnection = require("../../database/db_connection");
+const jwt = require("jsonwebtoken");
 const USER_ATTRIBUTE = require("./userAttribute");
 const FACEBOOK_ATTRIBUTE = require("./facebookAttribute");
 
+module.exports.authenToken = (req, res, next) =>{
+    const authorizationHeader = req.headers['authorization'];
+    //bearer [token]
+    const token = authorizationHeader.split(' ')[1];
+    if(!token) res.sendStatus(401);
+    
+    jwt.verify(token, process.env.JWT_KEY, (err, data) =>{
+        console.log(err, data);
+        if(err) res.sendStatus(403);
+        next();
+    })
+}
+
+
 module.exports.login = async (req, res) =>{
+    let data = req.body;
+    const accessToken = jwt.sign(data, process.env.JWT_KEY, {expiresIn: '1h'});
     let userName = req.body.userName;
     let password = req.body.password;
     try{
@@ -27,7 +44,8 @@ module.exports.login = async (req, res) =>{
         else{
             connection.end();
             res.json({
-                message: "Login Successfully"
+                message: "Login Successfully",
+                accessToken,
             })
         }
     }
