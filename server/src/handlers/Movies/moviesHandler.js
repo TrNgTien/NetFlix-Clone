@@ -119,7 +119,8 @@ module.exports.postEpisodes = async(req, res) =>{
         let connection = await dbConnection();
         let getTIDQuery = `SELECT tID FROM tvseries WHERE name =?`;
         let getTID = await sqlQuery(connection, getTIDQuery, [name]);
-        let TIDResult = getTID[0];
+        let TIDResult = getTID[0].tID;
+        console.log(TIDResult);
         let getEpisodesNameQuery = `SELECT eName FROM episodes WHERE eName =?`;
         let getEpisodesName = await sqlQuery(connection, getEpisodesNameQuery, [eName]);
         if(getEpisodesName.length === 0){
@@ -127,7 +128,6 @@ module.exports.postEpisodes = async(req, res) =>{
                                     VALUES (?,?,?,?,?)`;
             let postEpisodes = await sqlQuery(connection, postEpisodesQuery, [eName, description, duration, episodesData, TIDResult]);
             connection.end();
-            console.log(getTID);
             res.json({
                 message: "post episodes successfully"
             });
