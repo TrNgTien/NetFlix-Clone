@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const URI = "mongodb+srv://Netflix-notification:netflixnotification@cluster0.cubhx.mongodb.net/test"
+const URI = "mongodb+srv://studytechstack:studytechstack@cluster0.h63ex.mongodb.net/test"
 
 const connectDb = async() =>{
     try{
