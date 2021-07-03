@@ -18,7 +18,7 @@ module.exports.login = async (req, res) =>{
                 message: "Invalid Username or Password"
             })
         }
-        else if (getPassword.lenth === 0){
+        else if (getPassword.length === 0){
             connection.end();
             res.json({
                 message: "Invalid Username or Password"
