@@ -20,7 +20,7 @@ const Authentication = (req, res, next) =>{
 };
 
 const generateAccessToken = (user) =>{
-    return jwt.sign({user}, process.env.JWT_KEY, {expiresIn:"1h"});
+    return jwt.sign({user}, process.env.JWT_KEY, {expiresIn:"1h"}); 
 };
 
 module.exports ={ Authentication, generateAccessToken }
