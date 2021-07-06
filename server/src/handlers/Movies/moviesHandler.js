@@ -15,7 +15,7 @@ module.exports.postMovies = async (req, res) =>{
         let connection = await dbConnection();
         let getMoviesNameQuery = `SELECT name FROM moviesinfor WHERE name =?`;
         let MoviesName = await sqlQuery(connection, getMoviesNameQuery, [name]);
-        if (MoviesName === 0){
+        if (MoviesName.length === 0){
             let postMoviesInforQuery = `INSERT INTO moviesinfor
             (
                 name, duration, description, imdb_score, actor, director, year_release, moviesData
@@ -34,6 +34,7 @@ module.exports.postMovies = async (req, res) =>{
                 ]);
             let postMoviesQuery = `INSERT INTO movies(name) VALUE(?)`;
             let postMovies = await sqlQuery(connection, postMoviesQuery, [name]);
+            console.log(MoviesName);
             connection.end();
             res.json({
                 message: "Post successfully"
@@ -56,7 +57,6 @@ module.exports.postMovies = async (req, res) =>{
 
 module.exports.postTvSeries = async (req, res) =>{
     let name = req.body.name;
-    let duration = req.body.duration;
     let description = req.body.description;
     let imdb_score = req.body.imdb_score;
     let actor = req.body.actor;
@@ -64,7 +64,6 @@ module.exports.postTvSeries = async (req, res) =>{
     let year_release = req.body.year_release;
     let tvseriesData = req.body.tvseriesData;
     let season = req.body.season;
-    let eName = req.body.eName;
     try{
         let connection = await dbConnection();
         let getTvSeriesNameQuery = `SELECT name FROM tvseriesinfor WHERE name =?`;
@@ -119,8 +118,7 @@ module.exports.postEpisodes = async(req, res) =>{
         let connection = await dbConnection();
         let getTIDQuery = `SELECT tID FROM tvseries WHERE name =?`;
         let getTID = await sqlQuery(connection, getTIDQuery, [name]);
-        let TIDResult = getTID[0].tID;
-        console.log(TIDResult);
+        let TIDResult = getTID[0].tID;  
         let getEpisodesNameQuery = `SELECT eName FROM episodes WHERE eName =?`;
         let getEpisodesName = await sqlQuery(connection, getEpisodesNameQuery, [eName]);
         if(getEpisodesName.length === 0){
