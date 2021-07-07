@@ -1,1 +1,0 @@
-// This folder will return the response when client request to our server

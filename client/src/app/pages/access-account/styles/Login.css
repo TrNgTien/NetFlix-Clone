@@ -1,38 +1,32 @@
-body {
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap");
+* {
   margin: 0;
+  padding: 0;
 }
 .register-page {
-  background-image: url("../../../assets/images/background.jpg");
+  background-image: linear-gradient(
+      rgba(20, 19, 19, 0.7),
+      rgba(36, 33, 33, 0.7)
+    ),
+    url("../../../assets/images/background.jpg");
   background-repeat: no-repeat;
   background-size: 100%;
   height: 100vh;
+  background-position: cover;
 }
 .image-background {
   max-width: 100%;
 }
 .logo-image {
-  margin-top: 20px;
+  margin-top: 30px;
   margin-left: 30px;
+  width: 15%;
 }
 .header-bar {
   display: flex;
 }
-.btn__sign-in {
-  background-color: #e50914;
-  margin-left: 65%;
-  margin-top: 20px;
-  width: 150px;
-  height: 50px;
-  cursor: pointer;
-  box-sizing: border-box;
-  padding: 10px 15px 10px 15px;
-  border-radius: 5px;
-  color: white;
-  text-align: center;
-  font-weight: bold;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
 .form__sign-up {
+  align-items: center;
   z-index: 2;
   width: 460px;
   margin-left: 35%;
@@ -44,11 +38,16 @@ body {
   box-sizing: border-box;
   color: white;
 }
+.signIn__title {
+  font-family: "Montserrat", sans-serif;
+  font-size: x-large;
+  padding: 0px 0px 15px 0px;
+}
 .input__user-name {
   margin-bottom: 15px;
   background: #333;
   height: 55px;
-  width: 269px;
+  width: 270px;
   border-radius: 5px;
   color: white;
   caret-color: white;
@@ -59,19 +58,19 @@ body {
   margin-bottom: 30px;
   background: #333;
   height: 55px;
-  width: 269px;
+  width: 270px;
   border-radius: 5px;
   color: white;
   caret-color: white;
   padding-left: 10px;
   outline: none;
 }
-.btn__sign-up {
-  background-color: #e50914;
+.btn_sign-in {
+  background-color: #e81e28;
   color: white;
   margin-left: 2px;
   border-radius: 5px;
-  width: 283px;
+  width: 280px;
   padding: 10px 20px 10px 20px;
   box-sizing: border-box;
   text-align: center;
@@ -80,24 +79,21 @@ body {
   cursor: pointer;
 }
 .remember-area {
-  width: 282px;
-  display: flex;
-}
-.remember-area > p {
-  white-space: nowrap;
-  margin-top: 10px;
-}
-.check-remember {
-  cursor: pointer;
-  height: 15px;
-  width: 15px;
   margin-top: 15px;
+  width: 283px;
+  display: flex;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+.need-support {
+  text-decoration: none;
+  color: white;
 }
 .fb-zone {
   display: flex;
   margin-bottom: 20px;
   margin-top: 30px;
   cursor: pointer;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 .facebook-icon {
   height: 30px;
@@ -106,6 +102,7 @@ body {
 .google-zone {
   display: flex;
   cursor: pointer;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 .google-icon {
   color: red;

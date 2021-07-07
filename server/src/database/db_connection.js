@@ -9,7 +9,6 @@ const dbConfig = {
 
 module.exports = () =>
   new Promise((resolve, reject) => {
-    
     const connection = mysql.createConnection(dbConfig);
 
     connection.connect((error) => {
