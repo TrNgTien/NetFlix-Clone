@@ -1,5 +1,7 @@
 const sqlQuery = require("../../database/my_sql_query");
 const dbConnection = require("../../database/db_connection");
+const { get } = require("../../routes/usersRoutes");
+const e = require("express");
 
 
 module.exports.postMovies = async (req, res) =>{
@@ -46,6 +48,22 @@ module.exports.postMovies = async (req, res) =>{
                 message: "movie has already existed"
             }) 
         }
+    }   
+    catch(err){
+        console.log(err);
+        res.status(500).json({
+            message: err 
+        });
+    }  
+}
+
+module.exports.getMovies = async (req, res) =>{
+    try{
+        let connection = await dbConnection();
+        let getMoviesInforQuery = `SELECT * FROM moviesinfor`;
+        let getMoviesInfor = await sqlQuery(connection, getMoviesInforQuery);
+        connection.end();
+        return res.status(200).json({data: getMoviesInfor});
     }   
     catch(err){
         console.log(err);
@@ -107,6 +125,22 @@ module.exports.postTvSeries = async (req, res) =>{
     }  
 }
 
+module.exports.getTvSeries = async (req, res) =>{
+    try{
+        let connection = await dbConnection();
+        let getTvSeriesInforQuery = `SELECT * FROM tvseriesinfor`;
+        let getTvSeriesInfor = await sqlQuery(connection, getTvSeriesInforQuery);
+        connection.end();
+        return res.status(200).json({data: getTvSeriesInfor});
+    }   
+    catch(err){
+        console.log(err);
+        res.status(500).json({
+            message: err 
+        });
+    }  
+}
+
 module.exports.postEpisodes = async(req, res) =>{
     let name = req.body.name;
     let duration = req.body.duration;
@@ -142,4 +176,19 @@ module.exports.postEpisodes = async(req, res) =>{
             message: err
         })
     }
+}
+module.exports.getEpisodes = async (req, res) =>{
+    try{
+        let connection = await dbConnection();
+        let getTvSeriesEpisodesQuery = `SELECT * FROM episodes`;
+        let getTvSeriesEpisodes = await sqlQuery(connection, getTvSeriesEpisodesQuery);
+        connection.end();
+        return res.status(200).json({data: getTvSeriesEpisodes});
+    }   
+    catch(err){
+        console.log(err);
+        res.status(500).json({
+            message: err 
+        });
+    }  
 }
