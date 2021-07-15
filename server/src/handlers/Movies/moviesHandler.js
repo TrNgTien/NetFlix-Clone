@@ -1,5 +1,6 @@
 const sqlQuery = require("../../database/my_sql_query");
 const dbConnection = require("../../database/db_connection");
+const sendNotify = require("../../notification/notifyHandler");
 
 module.exports = {
   postMovies: async (req, res) => {
@@ -28,6 +29,7 @@ module.exports = {
         let postMovies = await sqlQuery(connection, postMoviesQuery, [name]);
         console.log(MoviesName);
         connection.end();
+        sendNotify.notify(name, description);
         res.json({
           message: "Post successfully",
         });
@@ -89,6 +91,7 @@ module.exports = {
           season,
           imdb_score,
         ]);
+        sendNotify.notify(name, description);
         connection.end();
         res.json({
           message: "Post successfully",
@@ -143,6 +146,7 @@ module.exports = {
           episodesData,
           TIDResult,
         ]);
+        sendNotify.notify(eName, description);
         connection.end();
         res.json({
           message: "post episodes successfully",
