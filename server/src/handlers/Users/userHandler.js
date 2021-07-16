@@ -81,10 +81,11 @@ module.exports = {
 passport.use(new facebookStrategy({
   clientID: '905373850341463',
   clientSecret: 'a05d7a532387a3634574c8c9f97de512',
-  callbackURL: 'http://localhost:8080/auth/fb/callback',
+  callbackURL: 'http://localhost:8080/UserForm/auth/fb/callback',
   profileFields: ["id", "name", "photos"]
 }, async (accessToken, refreshToken, profile, done) =>{
   try{
+      console.log(profile);
       let connection = dbConnection();
       let getfIDQuery = `SELECT fID from facebook WHERE social_ID =?`;
       let getfID = await sqlQuery(connection, getfIDQuery, [profile.id]);
@@ -95,14 +96,14 @@ passport.use(new facebookStrategy({
           let insertUserFbQuery = `INSERT INTO users (fID) VALUES(?)`;
           let insetUserFb = await sqlQuery(connection, insertUserFbQuery, [fID]);
           connection.end();
-          done.json({message: "login successfully"});
+          done(null, fID);
       }
       else{
-          done.json({message: "login successfully"});
+          done(null, fID);
       }
   }
   catch(err){
-      done.json({err});
+      console.log(err);
   }
 
 }))
@@ -110,28 +111,29 @@ passport.use(new facebookStrategy({
 passport.use(new googleStrategy({
   clientID: '1025733734359-rk86a2ig0brtbhkjvuiadnj00ml3nbv4.apps.googleusercontent.com',
   clientSecret: 'fY1taygv9vW7M9FfomUDTqNl',
-  callbackURL: 'http://localhost:8080/auth/google/callback',
+  callbackURL: 'http://localhost:8080/UserForm/auth/google/callback',
   profileFields: ["id", "name", "photos"]
 }, async (accessToken, refreshToken, profile, done) =>{
   try{
+      console.log(profile);
       let connection = dbConnection();
       let getgIDQuery = `SELECT gID from google WHERE social_ID =?`;
       let getgID = await sqlQuery(connection, getgIDQuery, [profile.id]);
       if(getgID.length === 0){
           let createUserGgQuery = `INSERT INTO google(social_ID, photoData, userNameG) VALUES (?,?,?)`;
-          let createUserGg = await sqlQuery(connection, createUserGgQuery, [profile.id, profile.photos[0].value, profile.name[0].givenName]);
+          let createUserGg = await sqlQuery(connection, createUserGgQuery, [profile.id, profile.photos[0].value, profile.displayName]);
           let gID = getgID[0].gID;
           let insertUserGgQuery = `INSERT INTO users (fID) VALUES(?)`;
           let insetUserGg = await sqlQuery(connection, insertUserGgQuery, [gID]);
           connection.end();
-          done.json({message: "login successfully"});
+          done(null,gID);
       }
       else{
-          done.json({message: "login successfully"});
+          done(null, gID);
       }
   }
   catch(err){
-      done.json({err});
+      console.log(err);
   }
 
 }))
