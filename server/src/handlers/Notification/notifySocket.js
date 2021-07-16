@@ -23,7 +23,6 @@ function connectSocket(io) {
             description: change.fullDocument.description,
             createdAt: change.fullDocument.createdAt
             };
-            console.log("inside changeStream insert");
             io.emit('message', movie.name + movie.description + movie.createdAt);
             break;
         case "delete":

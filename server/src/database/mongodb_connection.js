@@ -11,7 +11,6 @@ const connectDb = async() =>{
             useFindAndModify: false,
             useCreateIndex: true
         });
-        console.log("connect successfully");
     }
     catch (err){
         console.log(err);
