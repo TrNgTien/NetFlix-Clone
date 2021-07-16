@@ -7,6 +7,7 @@ const routes = require("./routes/index");
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const connectSocket = require('./notification/notifySocket');
+const passport_setup = require("./handlers/Users/userHandler");
 require("dotenv").config();
 
 app.get("/", (req, res) => res.sendFile(__dirname + '/index.html'));
