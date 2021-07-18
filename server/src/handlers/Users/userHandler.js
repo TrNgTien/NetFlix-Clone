@@ -104,9 +104,10 @@ passport.use(new facebookStrategy({
     console.log(profile);
     let token = auth.generateAccessToken(profile.displayName);
     let form = {};
-    form.userName = profile.displayName;
+    form.userName = profile._json.first_name +' '+ profile._json.last_name;
     form.photoData = profile.photos[0].value;
     form.fId = profile.id;
+    console.log(form.userName);
     let userModel = new User(form);
     // await userModel.save();
     userModel.save(function(err) {
