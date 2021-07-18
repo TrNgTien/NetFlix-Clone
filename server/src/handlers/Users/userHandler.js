@@ -48,7 +48,7 @@ module.exports = {
   },
   login: async (req, res) => {
     const { userName, password } = req.body;
-    const token = auth.generateAccessToken(userName);
+    let token = auth.generateAccessToken(userName);
     try {
       const connection = await dbConnection();
       const getUserNameQuery = `SELECT userName FROM users WHERE userName = ?`;
@@ -80,6 +80,15 @@ module.exports = {
   },
 };
 
+passport.serializeUser((user, done) =>{
+  done(null, user.id);
+});
+passport.deserializeUser((user, done) =>{
+  User.findById(id).then((user) =>{
+    done(null,user);
+  })
+})
+
 passport.use(new facebookStrategy({
   clientID: '905373850341463',
   clientSecret: 'a05d7a532387a3634574c8c9f97de512',
@@ -93,6 +102,7 @@ passport.use(new facebookStrategy({
   //No user was found... so create a new user with values from Facebook
   if (!user) {
     console.log(profile);
+    let token = auth.generateAccessToken(profile.displayName);
     let form = {};
     form.userName = profile.displayName;
     form.photoData = profile.photos[0].value;
@@ -103,9 +113,13 @@ passport.use(new facebookStrategy({
           if (err) console.log(err);
           return done(err, user);
       });
+    console.log(token);
   } else {
       //found user. Return
+      let token = auth.generateAccessToken(profile.displayName);
+      console.log(token);
       return done(err, user);
+
     } 
   });
 }))
@@ -123,6 +137,7 @@ passport.use(new googleStrategy({
   //No user was found... so create a new user with values from Google
   if (!user) {
     console.log(profile);
+    let token = auth.generateAccessToken(profile.displayName);
     let form = {};
     form.userName = profile.displayName;
     form.photoData = profile.photos[0].value;
@@ -133,8 +148,11 @@ passport.use(new googleStrategy({
           if (err) console.log(err);
           return done(err, user);
       });
+    console.log(token);
   } else {
       //found user. Return
+      let token = auth.generateAccessToken(profile.displayName);
+      console.log(token);   
       return done(err, user);
     } 
   });
