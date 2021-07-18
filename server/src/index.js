@@ -4,15 +4,24 @@ const app = express();
 const cors = require("cors");
 const PORT = process.env.PORT || 8080;
 const routes = require("./routes/index");
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const passport = require('passport');
+const connectSocket = require('./handlers/Notification/notifySocket');
 require("dotenv").config();
 
+
+connectMongoDB();
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize());
 routes(app);
-// routes(app);
-app.listen(PORT, () => {
-  console.log(` Server is running in ${PORT}`);
+connectSocket(io);
+
+
+http.listen(PORT, () => {
+  console.log(`Socket.IO server running at http://localhost:${PORT}/`);
 });
 
 
-module.exports = app; 
+module.exports = app;
