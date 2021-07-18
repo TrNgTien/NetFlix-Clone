@@ -8,6 +8,8 @@ const passport = require("passport");
 const facebookStrategy = require("passport-facebook").Strategy;
 const googleStrategy = require("passport-google-oauth").OAuth2Strategy;
 const saltRounds = 10;
+const User = require('../Users/userSchema');
+const mongoose = require('mongoose');
 module.exports = {
   register: async (req, res) => {
     const { userName, password } = req.body;
@@ -83,29 +85,29 @@ passport.use(new facebookStrategy({
   clientSecret: 'a05d7a532387a3634574c8c9f97de512',
   callbackURL: 'http://localhost:8080/UserForm/auth/fb/callback',
   profileFields: ["id", "name", "photos"]
-}, async (accessToken, refreshToken, profile, done) =>{
-  try{
-      console.log(profile);
-      let connection = dbConnection();
-      let getfIDQuery = `SELECT fID from facebook WHERE social_ID =?`;
-      let getfID = await sqlQuery(connection, getfIDQuery, [profile.id]);
-      if(getfID.length === 0){
-          let createUserFbQuery = `INSERT INTO facebook(social_ID, photoData, userNameF) VALUES (?,?,?)`;
-          let createUserFb = await sqlQuery(connection, createUserFbQuery, [profile.id, profile.photos[0].value, profile.name[0].givenName]);
-          let fID = getfID[0].fID;
-          let insertUserFbQuery = `INSERT INTO users (fID) VALUES(?)`;
-          let insetUserFb = await sqlQuery(connection, insertUserFbQuery, [fID]);
-          connection.end();
-          done(null, fID);
-      }
-      else{
-          done(null, fID);
-      }
+}, function (accessToken, refreshToken, profile, done) {
+  User.findOne({ fId: profile.id }, async (err, user) => {
+    if (err) {
+      return done(err);
   }
-  catch(err){
-      console.log(err);
-  }
-
+  //No user was found... so create a new user with values from Facebook
+  if (!user) {
+    console.log(profile);
+    let form = {};
+    form.userName = profile.displayName;
+    form.photoData = profile.photos[0].value;
+    form.fId = profile.id;
+    let userModel = new User(form);
+    // await userModel.save();
+    userModel.save(function(err) {
+          if (err) console.log(err);
+          return done(err, user);
+      });
+  } else {
+      //found user. Return
+      return done(err, user);
+    } 
+  });
 }))
 
 passport.use(new googleStrategy({
@@ -113,27 +115,69 @@ passport.use(new googleStrategy({
   clientSecret: 'fY1taygv9vW7M9FfomUDTqNl',
   callbackURL: 'http://localhost:8080/UserForm/auth/google/callback',
   profileFields: ["id", "name", "photos"]
-}, async (accessToken, refreshToken, profile, done) =>{
-  try{
-      console.log(profile);
-      let connection = dbConnection();
-      let getgIDQuery = `SELECT gID from google WHERE social_ID =?`;
-      let getgID = await sqlQuery(connection, getgIDQuery, [profile.id]);
-      if(getgID.length === 0){
-          let createUserGgQuery = `INSERT INTO google(social_ID, photoData, userNameG) VALUES (?,?,?)`;
-          let createUserGg = await sqlQuery(connection, createUserGgQuery, [profile.id, profile.photos[0].value, profile.displayName]);
-          let gID = getgID[0].gID;
-          let insertUserGgQuery = `INSERT INTO users (fID) VALUES(?)`;
-          let insetUserGg = await sqlQuery(connection, insertUserGgQuery, [gID]);
-          connection.end();
-          done(null,gID);
-      }
-      else{
-          done(null, gID);
-      }
+}, function (accessToken, refreshToken, profile, done) {
+  User.findOne({ gId: profile.id }, async (err, user) => {
+    if (err) {
+      return done(err);
   }
-  catch(err){
-      console.log(err);
-  }
-
+  //No user was found... so create a new user with values from Google
+  if (!user) {
+    console.log(profile);
+    let form = {};
+    form.userName = profile.displayName;
+    form.photoData = profile.photos[0].value;
+    form.gId = profile.id;
+    let userModel = new User(form);
+    // await userModel.save();
+    userModel.save(function(err) {
+          if (err) console.log(err);
+          return done(err, user);
+      });
+  } else {
+      //found user. Return
+      return done(err, user);
+    } 
+  });
 }))
+const connection = mongoose.connection;
+connection.once("open", () => {
+  const userChangeStream = connection.collection("User").watch();
+  userChangeStream.on("change", async (change) => {
+      switch (change.operationType) {
+      case "insert":
+          const user = {
+          _id: change.fullDocument._id,
+          userName: change.fullDocument.userName,
+          gId: change.fullDocument.gId,
+          fId: change.fullDocument.fId
+          };
+          try {
+            let connection = await dbConnection();
+            if(user.gId != null){
+              let registerQuery = `INSERT INTO users (${USER_ATTRIBUTE.userName},${USER_ATTRIBUTE.gID}) 
+                            VALUES (?, ?)`;
+              let createUser = sqlQuery(connection, registerQuery, [
+                user.userName,
+                user._id.toString(),
+              ]);
+              connection.end();
+            }
+            if(user.fId != null){
+              let registerQuery = `INSERT INTO users (${USER_ATTRIBUTE.userName},${USER_ATTRIBUTE.fID}) 
+                            VALUES (?, ?)`;
+              let createUser = sqlQuery(connection, registerQuery, [
+                user.userName,
+                user._id.toString(),
+              ]);
+              connection.end();
+            }
+          } catch (error) { 
+            console.log(error);
+          }
+          break; 
+
+      case "delete":
+          break;
+      }
+  });
+  });
