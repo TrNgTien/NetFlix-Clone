@@ -4,12 +4,12 @@ const Authentication = (req, res, next) =>{
     let token = req.get("authorization");
     if(token){
         authtoken = token.slice(7);
-        jwt.verify(authtoken, process.env.JWT_KEY, (err) =>{
+          jwt.verify(authtoken, "process.env.JWT_KEY", (err, user) =>{
             if(err){
                 return res.json({err: err});
             }
             else{
-
+                req.user = user;
                 next();
             }
         })
@@ -19,8 +19,16 @@ const Authentication = (req, res, next) =>{
     }
 };
 
-const generateAccessToken = (user) =>{
-    return jwt.sign({user}, process.env.JWT_KEY, {expiresIn:"1h"}); 
+const generateAccessToken = (userId, role) =>{
+    return jwt.sign({userId, role}, "process.env.JWT_KEY", {expiresIn:"1h"}); 
 };
 
-module.exports ={ Authentication, generateAccessToken }
+const adminVerify = (req, res, next) => {
+    if(req.user.role === "admin")   next();
+    else
+    res.status(201).json({
+        message: "You are not allowed",
+    })
+};
+
+module.exports ={ Authentication, generateAccessToken, adminVerify}

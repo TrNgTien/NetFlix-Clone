@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 
-const movieNotify = new mongoose.Schema({
-    name:{
+const notify = new mongoose.Schema({
+    content:{
         type: String,
-        required: true,
     },
-    description:{
+    thumbnailURL:{
         type: String
     },
     createdAt:{
@@ -15,4 +14,4 @@ const movieNotify = new mongoose.Schema({
 }, {
     collection: 'notifications'
 });
-module.exports = Notify = mongoose.model('notifications', movieNotify);
+module.exports = Notify = mongoose.model('notifications', notify);
