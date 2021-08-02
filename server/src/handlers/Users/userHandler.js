@@ -10,6 +10,7 @@ const googleStrategy = require("passport-google-oauth").OAuth2Strategy;
 const saltRounds = 10;
 const User = require('../Users/userSchema');
 const mongoose = require('mongoose');
+
 module.exports = {
   register: async (req, res) => {
     const { userName, password } = req.body;
@@ -19,7 +20,7 @@ module.exports = {
       let getUserName = await sqlQuery(connection, getUserNameQuery, [
         userName,
       ]);
-      let hashedPassword = await bcrypt.hashSync(password, 10);
+      let hashedPassword = await bcrypt.hashSync(password, saltRounds);
 
       if (getUserName.length !== 0) {
         console.log(getUserName);
@@ -48,28 +49,34 @@ module.exports = {
   },
   login: async (req, res) => {
     const { userName, password } = req.body;
-    let token = auth.generateAccessToken(userName);
+    
     try {
       const connection = await dbConnection();
-      const getUserNameQuery = `SELECT userName FROM users WHERE userName = ?`;
+      const getUserNameQuery = `SELECT userName, password FROM users WHERE userName = ?`;
       let getUserName = await sqlQuery(connection, getUserNameQuery, [
         userName,
       ]);
-      let getPasswordQuery = `SELECT password FROM users WHERE password = ?`;
-      let getPassword = await sqlQuery(connection, getPasswordQuery, [
-        password,
-      ]);
-      if (getUserName.length === 0 && getPassword.length === 0) {
+      
+      let correctPassword = bcrypt.compareSync(password, getUserName[0].password.toString());
+      
+      if (!correctPassword) {
         connection.end();
         res.json({
           message: "Invalid Username or Password",
         });
       } else {
+        let getUserInfoQuery = `SELECT * FROM users WHERE userName = ?`;
+        let getUserInfo = await sqlQuery(connection, getUserInfoQuery, [
+          userName,
+        ]);
+        
+        let token = auth.generateAccessToken(getUserInfo[0].userID, getUserInfo[0].role);
         connection.end();
         res.json({
           message: "Login Successfully",
           token,
         });
+        
       }
     } catch (err) {
       console.log(err);
@@ -102,25 +109,25 @@ passport.use(new facebookStrategy({
   //No user was found... so create a new user with values from Facebook
   if (!user) {
     console.log(profile);
-    let token = auth.generateAccessToken(profile.displayName);
+    
     let form = {};
     form.userName = profile._json.first_name +' '+ profile._json.last_name;
     form.photoData = profile.photos[0].value;
     form.fId = profile.id;
     console.log(form.userName);
     let userModel = new User(form);
-    // await userModel.save();
-    userModel.save(function(err) {
-          if (err) console.log(err);
-          return done(err, user);
-      });
+    userModel.save();
+    done(err, user);
+
+    const user = await User.findOne({ fId: profile.id });
+    let token = auth.generateAccessToken(user);
     console.log(token);
   } else {
       //found user. Return
-      let token = auth.generateAccessToken(profile.displayName);
+      const user = await User.findOne({ gId: profile.id });
+      let token = auth.generateAccessToken(user);
       console.log(token);
       return done(err, user);
-
     } 
   });
 }))
@@ -137,27 +144,30 @@ passport.use(new googleStrategy({
   }
   //No user was found... so create a new user with values from Google
   if (!user) {
-    console.log(profile);
-    let token = auth.generateAccessToken(profile.displayName);
     let form = {};
     form.userName = profile.displayName;
     form.photoData = profile.photos[0].value;
     form.gId = profile.id;
+
     let userModel = new User(form);
-    // await userModel.save();
-    userModel.save(function(err) {
-          if (err) console.log(err);
-          return done(err, user);
-      });
+    userModel.save();
+    done(err, user);
+
+    const user = await User.findOne({ gId: profile.id });
+    let token = auth.generateAccessToken(user);
     console.log(token);
+      
   } else {
       //found user. Return
-      let token = auth.generateAccessToken(profile.displayName);
+      const user = await User.findOne({ gId: profile.id });
+      let token = auth.generateAccessToken(user);
       console.log(token);   
       return done(err, user);
     } 
   });
 }))
+
+
 const connection = mongoose.connection;
 connection.once("open", () => {
   const userChangeStream = connection.collection("User").watch();

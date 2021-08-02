@@ -7,21 +7,16 @@ const routes = require("./routes/index");
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const passport = require('passport');
-const connectSocket = require('./handlers/Notification/notifySocket');
 require("dotenv").config();
-
 
 connectMongoDB();
 app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
 routes(app);
-connectSocket(io);
-
 
 http.listen(PORT, () => {
   console.log(`Socket.IO server running at http://localhost:${PORT}/`);
 });
-
 
 module.exports = app;
